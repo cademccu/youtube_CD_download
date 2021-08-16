@@ -31,6 +31,9 @@ def help():
     sys.exit(0)
 
 
+def argparse():
+    pass
+
 def main():
     # TODO better arg management either in loop or dictionary
     # need to check for argv length before indexing.
