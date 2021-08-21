@@ -22,22 +22,14 @@ def download(URL):
         ydl.download([URL])
 
 
-def help():
-    print("[ USAGE ] \n")
-    print("<URL>                     Download the video or playlist at the youtube URL to mp3.")
-    print("--file | -f   <FILE>      Provide a text file with a youtube URL on every line.")
-    print("--help | -h               This help menu.")
-    print("--clear | -c              Clears youtube-dl's cache, can help if a download fails.")
-    sys.exit(0)
-
-
-def argparse():
-#    parser = argparse.ArgumentParser(description='Process some integers.')
+# uses argparser to get arguments
+def get_arguments():
+    #parser = argparse.ArgumentParser(description="Downlad MP3's from YouTube videos.")
     parser = argparse.ArgumentParser()
 
-    parser.add("-u", "--url", help="Specify the URL of a video or playlist.", action="store_true")
-    parser.add("-f", "--file", help="Specify a file name/path of a textfile with a single URL on each line.")
-    parser.add("-c", "--clear", help="Clear youtube-dl's cache")
+    parser.add_argument("-u", "--url", help="Specify the URL of a video or playlist.", action="store", dest="URL")
+    parser.add_argument("-f", "--file", help="Specify a file name/path of a textfile with a single URL on each line.", action="store", dest="FILE")
+    parser.add_argument("-c", "--clear", help="Clear youtube-dl's cache", action="store_true")
 
 
     return parser.parse_args()
@@ -46,14 +38,18 @@ def main():
     # TODO better arg management either in loop or dictionary
     # need to check for argv length before indexing.
 
-    argparse()
+    args = get_arguments()
+
+    if args.clear:
+        subprocess.run(["youtube-dl", "--rm-cache-dir"])
 
 
-
-    if len(sys.argv) == 1:
-        help()
-        sys.exit(0)
-    elif sys.argv[1] == "--file" or sys.argv[1] == "-f":
+    # main decision section
+    if args.URL:
+        print("Using a URL from the command line.")
+        download(args.URL)
+    elif args.FILE:
+        print("Using URL values from the file:", args.FILE)
         with open(sys.argv[2], "r") as f:
             line = f.readline()
             while True:
@@ -61,13 +57,8 @@ def main():
                     break
                 download(line)
                 line = f.readline()
-    elif sys.argv[1] == "--help" or sys.argv[1] == "-h":
-        help()
-        
-    elif sys.argv[1] == "--clear" or sys.argv[1] == "-c":
-        subprocess.run(["youtube-dl", "--rm-cache-dir"])
-    else: # single URL
-        download(sys.argv[1])
+
+    sys.exit(0)
 
 
 if __name__ == "__main__":
