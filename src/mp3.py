@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import youtube_dl
 import sys
 import subprocess
-
+import argparse
 
 
 # options for youtube downloader to convert
@@ -32,11 +32,24 @@ def help():
 
 
 def argparse():
-    pass
+#    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser()
+
+    parser.add("-u", "--url", help="Specify the URL of a video or playlist.", action="store_true")
+    parser.add("-f", "--file", help="Specify a file name/path of a textfile with a single URL on each line.")
+    parser.add("-c", "--clear", help="Clear youtube-dl's cache")
+
+
+    return parser.parse_args()
 
 def main():
     # TODO better arg management either in loop or dictionary
     # need to check for argv length before indexing.
+
+    argparse()
+
+
+
     if len(sys.argv) == 1:
         help()
         sys.exit(0)
