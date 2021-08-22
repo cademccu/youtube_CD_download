@@ -3,10 +3,9 @@ import youtube_dl
 import sys
 import subprocess
 import argparse
+import os
 
 
-
-# 'outtmpl': 'e:/python/downloadedsongs/%(title)s.%(ext)s',
 OUTTMPL_STR = "%(title)s.%(ext)s"
 # options for youtube downloader to convert
 ydl_opts = {
@@ -33,16 +32,14 @@ def get_arguments():
 
     parser.add_argument("-u", "--url", help="Specify the URL of a video or playlist.", action="store", dest="URL")
     parser.add_argument("-l", "--location", help="Specify a location for the files to download to.", action="store", dest="LOCATION")
+    parser.add_argument("--make-directory", help="If location is specified, make the directory with the specified path.", action="store_true", dest="MAKE_DIRECTORY")
     parser.add_argument("-f", "--file", help="Specify a file name/path of a textfile with a single URL on each line.", action="store", dest="FILE")
     parser.add_argument("-c", "--clear", help="Clear youtube-dl's cache", action="store_true")
-
+    
 
     return parser.parse_args()
 
 def main():
-    # TODO better arg management either in loop or dictionary
-    # need to check for argv length before indexing.
-
     args = get_arguments()
 
     if args.clear:
@@ -51,8 +48,15 @@ def main():
         if args.FILE == None and args.URL == None:
             print("[ERROR] Must specify a url or a file containing URLS. -h for help.")
             sys.exit(-1)
+        if args.MAKE_DIRECTORY:
+            try:
+                os.mkdir(args.LOCATION)
+            except OSError as error:
+                print("[ERROR] OSError occurred while trying to make new directory. Exiting...")
+                print(error) 
+                sys.exit()
         # sanatize the filepath if path seperator not provided.
-        ydl_opts["outtmpl"] = args.LOCATION + OUTTMPL_STR if args.LOCATION[-1] == "/" else args.LOCATION + "/" + OUTTMPL_STR
+        ydl_opts["outtmpl"] = os.path.join(args.LOCATION, OUTTMPL_STR)
 
 
 
