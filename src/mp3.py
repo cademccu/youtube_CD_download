@@ -35,6 +35,7 @@ def get_arguments():
     parser.add_argument("--make-directory", help="If location is specified, make the directory with the specified path.", action="store_true", dest="MAKE_DIRECTORY")
     parser.add_argument("-f", "--file", help="Specify a file name/path of a textfile with a single URL on each line.", action="store", dest="FILE")
     parser.add_argument("-c", "--clear", help="Clear youtube-dl's cache", action="store_true")
+    parser.add_argument("--location-file", help="Give a .csv file with <URL,location,make-directory> where make-directory is <True|False>. If not specified, defaults to False.", dest="LOCATION_FILE")
     
 
     return parser.parse_args()
@@ -44,12 +45,13 @@ def main():
 
     if args.clear:
         subprocess.run(["youtube-dl", "--rm-cache-dir"])
-    if args.LOCATION != None:
-        if args.FILE == None and args.URL == None:
+    if args.LOCATION:
+        if not args.FILE and not args.URL:
             print("[ERROR] Must specify a url or a file containing URLS. -h for help.")
             sys.exit(-1)
         if args.MAKE_DIRECTORY:
             try:
+                print("Making directory:", args.LOCATION)
                 os.mkdir(args.LOCATION)
             except OSError as error:
                 print("[ERROR] OSError occurred while trying to make new directory. Exiting...")
@@ -66,14 +68,40 @@ def main():
         download(args.URL)
     elif args.FILE:
         print("Using URL values from the file:", args.FILE)
-        with open(sys.argv[2], "r") as f:
+        with open(args.FILE, "r") as f:
             line = f.readline()
             while True:
                 if not line:
                     break
                 download(line)
                 line = f.readline()
+    elif args.LOCATION_FILE:
+        # line format: < URL, location, (Optional) True|False >
+        print("Using URL values from the file:", args.LOCATION_FILE)
+        with open(args.LOCATION_FILE, "r") as f:
+            while True:
+                line = f.readline()
+                if not line:
+                    break
+                items = line.split(",")
+                if len(items) == 3:
+                    if items[2] == "True":
+                        # Try to make this directories location
+                        try:
+                            print("Making directory:", items[1].strip())
+                            os.mkdir(items[1].strip())
+                        except OSError as error:
+                            print("[ERROR] OSError occurred while trying to make new directory.\n\tSkipping line in file:", line)
+                            print(error) 
+                            continue
 
+                # sanatize the filepath if path seperator not provided.
+                ydl_opts["outtmpl"] = os.path.join(items[1].strip(), OUTTMPL_STR)
+                download(items[0].strip())
+                # reset the location option
+                ydl_opts["outtmpl"] = OUTTMPL_STR
+
+    # done!
     sys.exit(0)
 
 
