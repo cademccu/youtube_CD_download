@@ -5,9 +5,13 @@ import subprocess
 import argparse
 
 
+
+# 'outtmpl': 'e:/python/downloadedsongs/%(title)s.%(ext)s',
+OUTTMPL_STR = "%(title)s.%(ext)s"
 # options for youtube downloader to convert
 ydl_opts = {
     'format': 'bestaudio/best',
+    'outtmpl': OUTTMPL_STR,
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
         'preferredcodec': 'mp3',
@@ -28,6 +32,7 @@ def get_arguments():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-u", "--url", help="Specify the URL of a video or playlist.", action="store", dest="URL")
+    parser.add_argument("-l", "--location", help="Specify a location for the files to download to.", action="store", dest="LOCATION")
     parser.add_argument("-f", "--file", help="Specify a file name/path of a textfile with a single URL on each line.", action="store", dest="FILE")
     parser.add_argument("-c", "--clear", help="Clear youtube-dl's cache", action="store_true")
 
@@ -42,6 +47,13 @@ def main():
 
     if args.clear:
         subprocess.run(["youtube-dl", "--rm-cache-dir"])
+    if args.LOCATION != None:
+        if args.FILE == None and args.URL == None:
+            print("[ERROR] Must specify a url or a file containing URLS. -h for help.")
+            sys.exit(-1)
+        # sanatize the filepath if path seperator not provided.
+        ydl_opts["outtmpl"] = args.LOCATION + OUTTMPL_STR if args.LOCATION[-1] == "/" else args.LOCATION + "/" + OUTTMPL_STR
+
 
 
     # main decision section
