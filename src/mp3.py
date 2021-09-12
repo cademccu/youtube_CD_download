@@ -6,7 +6,7 @@ import argparse
 import os
 
 
-OUTTMPL_STR = "%(title)s.%(ext)s"
+OUTTMPL_STR = "%(title)s.%(ext)s" # format string for mp3 name. Used for setting and resetting.
 # options for youtube downloader to convert
 ydl_opts = {
     'format': 'bestaudio/best',
