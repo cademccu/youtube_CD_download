@@ -1,0 +1,63 @@
+#! /usr/bin/env python3
+
+import sys
+import subprocess
+import os
+
+if len(sys.argv) != 4:
+    print("[USAGE] <PLAYLIST url> <OUTPUT FILE> <DIRECTORY for write mp3>")
+
+with open ("_tmp.txt", "w") as tmpfile: 
+    cmd = ["youtube-dl", "--get-id", sys.argv[1]]
+    subprocess.run(cmd, stdout=tmpfile)
+
+
+print("done")
+urls = []
+with open ("_tmp.txt", "r") as tmpfile: 
+    line = tmpfile.readline()
+    while True:
+        if not line:
+            break;
+        urls.append(line.strip())
+        line = tmpfile.readline()
+        
+
+for i in range(len(urls)):
+    urls[i] = "https://www.youtube.com/watch?v=" + urls[i]
+
+
+with open (sys.argv[2], "a") as outfile:
+    line = ""
+    for url in urls:
+        line = url + "," + sys.argv[3] + ",True\n"
+        outfile.write(line)
+
+
+
+try:
+    os.remove("_tmp.txt")
+except:
+    # dirty hacks too lazy to learn tmp files rn TODO
+    print("[ERROR] something went wrong removing the temporary\n" +
+            "file used in this operation: [ _tmp.txt ]. ")
+
+"""
+
+if [ $# != 4 ]; then
+	echo -e "[USAGE]:\n"
+	echo -e "<URL of playlist>  <text file for output>  <directory name/path>  <Make directory? (Yes | No)> \n"
+	exit 0
+fi
+
+if [ $4 == "Yes" ]; then 
+	echo "making directory $3"
+	mkdir $3
+fi
+
+pre = "https://www.youtube.com/watch?v="
+post = ",$3,False"
+
+echo $pre$post
+
+"""
