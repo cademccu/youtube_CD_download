@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 from __future__ import unicode_literals
-import yt_dlp as yt_dlp
+import yt_dlp 
 import sys
 import subprocess
 import argparse
@@ -15,8 +15,8 @@ ydl_opts = {
     'outtmpl': OUTTMPL_STR,
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'mp3',
-        'preferredquality': '192',
+        'preferredcodec': 'best',
+       # 'preferredquality': '192', # Don't think this is needed.
     }],
 }
 
@@ -38,31 +38,63 @@ def get_arguments():
     parser.add_argument("-f", "--file", help="Specify a file name/path of a textfile with a single URL on each line.", action="store", dest="FILE")
     parser.add_argument("-c", "--clear", help="Clear youtube-dl's cache", action="store_true")
     parser.add_argument("--location-file", help="Give a .csv file with <URL,location,make-directory> where make-directory is <True|False>. If not specified, defaults to False.", dest="LOCATION_FILE")
-    
+    parser.add_argument("-a", "--audio-format", help="Audio format to write to. Defaults to 'best' which is .opus on most systems. Other options are: aac, alac, flac, m4a, mp3, opus, vorbis, wav", action="store", dest="AUDIO_FORMAT")
 
     return parser.parse_args()
 
+#################################################################
+# Clears the cache. Occasionally, the cache can cause issues
+# and running this command allows for a fresh download attempt
+# to run successfully.
+#################################################################
+def _clear_cache():
+    subprocess.run(["yt-dlp", "--rm-cache-dir"])
+
+#################################################################
+# User has the option to provide a flag to create a new directory
+# for the output to be stored in.
+#################################################################
+def _make_new_directory(location):
+    try:
+        print("Making directory:", location)
+        os.mkdir(location)
+    except OSError as error:
+        print("[ERROR] OSError occurred while trying to make new directory. Exiting...")
+        print(error) 
+        sys.exit(-1)
+
+
+def _change_audio_format(new_format):
+    # current supported options check. This should be in a config somewhere... if I wanted to.
+    supported = ["best", "aac", "alac", "flac", "m4a", "mp3", "opus", "vorbis", "wav"]
+    if new_format in supported:
+        ydl_opts["postprocessors"][0]["preferredcodec"] = new_format
+    else:
+        print("[ERROR] The format provided: " + new_format + "\nis not supported. Supported formats are:")
+        for s_format in supported:
+            print("\t" + s_format)
+        print("\nExiting...")
+        sys.exit(-1)
+
+    
 def main():
     args = get_arguments()
 
     if args.clear:
-        subprocess.run(["youtube-dl", "--rm-cache-dir"])
+        _clear_cache()
     if args.LOCATION:
         if not args.FILE and not args.URL:
-            print("[ERROR] Must specify a url or a file containing URLS. -h for help.")
+            print("[ERROR] Must specify a url or a file containing URLS. \n\tRun with \'-h\' option for help.")
             sys.exit(-1)
         if args.MAKE_DIRECTORY:
-            try:
-                print("Making directory:", args.LOCATION)
-                os.mkdir(args.LOCATION)
-            except OSError as error:
-                print("[ERROR] OSError occurred while trying to make new directory. Exiting...")
-                print(error) 
-                sys.exit()
+            _make_new_directory(args.LOCATION)
+
         # sanatize the filepath if path seperator not provided.
         ydl_opts["outtmpl"] = os.path.join(args.LOCATION, OUTTMPL_STR)
 
-
+    # Check if new format was provided. 
+    if args.AUDIO_FORMAT:
+        _change_audio_format(args.AUDIO_FORMAT)
 
     # main decision section
     if args.URL:
