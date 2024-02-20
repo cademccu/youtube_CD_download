@@ -11,7 +11,7 @@ import os
 #################################################################
 # Constants for script.
 #################################################################
-OUTTMPL_STR = "%(title)s.%(ext)s" # format string for mp3 name. Used for setting and resetting.
+OUTTMPL_STR = "%(title)s.%(ext)s" # format string for audio name. Used for setting and resetting.
 # options for youtube downloader to convert
 ydl_opts = {
     'format': 'bestaudio/best',

@@ -1,5 +1,5 @@
 # youtube_CD_download
-This repository contains python3 scripts designed to fetch and download mp3's from youtube video URL's and playlist URL's.
+This repository contains python3 scripts designed to fetch and download audio files from youtube video URL's and playlist URL's.
 
 ### WARNING
 This code is designed to occasially make custom CD's formyself, and no download of any music is sold or used in any way other than personal
@@ -8,9 +8,9 @@ be used to redistrubute, sell, or profit off other's works in any way. The techn
 libraries and sources, and I only manage the files once they are created. This code serves as a command line utility for those libraries.
 
 ### Intent of this project
-The intent of this project was to write a program to fit my music dowload needs. Using a YouTube-mp3 converter for one URL at a time,
+The intent of this project was to write a program to fit my music dowload needs. Using a YouTube converter for one URL at a time,
 that often failed to get the final product, then manually move each video from the Downloads directory to a specific, nested directory 
-made creating a custom CD or downlaoding an entire album a 20 plus minute process. 
+made creating a custom CD or downloading an entire album a 20 plus minute process. 
 
 What I wanted is a portable script that I can place on my path, that gives me the ability to do a few things:
 * Give a URL, or a file containing a URL(s) and download to my current place in the filesystem.
@@ -19,22 +19,22 @@ What I wanted is a portable script that I can place on my path, that gives me th
 
 
 ### Features
-```
--u | --url            <STRING>            Provide the URL to a playlist or individual video. 
--f | --file           <PATH_TO_FILE>      Give a file with a URL for video or playlist on each line.
--l | --location       <DIRECTORY>         For either the -f or -u option, provide a directory location 
-                                          relative to where script is being run, or absolute to write to.
---make-directory                          If providing a -l location, using this flag will make the 
-                                          directory given. Will throw error if location already exists.
---c | --clear                             Clear youtube-dl's cache. Helpful when a download fails.
---location-file       <PATH_TO_FILE>      Provide a comma seperated (CSV) file of the format:
-                                          <URL>,<LOCATION>,<MKDIRS> 
-                                          <URL> - The Url of a video or playlist
-                                          <LOCATION> - the location where this URL should write to.
-                                          <MKDIRS> either <True|False> defaults to false if not present.
-                                          Creates the directory provided in <LOCATION>. If fails, or 
-                                          directory already exists, continues to next line of file.
 
+```
+usage: get_audio [-h] [-u URL] [-l LOCATION] [--make-directory] [-f FILE] [-c] [--location-file LOCATION_FILE] [-a AUDIO_FORMAT]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -u URL, --url URL     Specify the URL of a video or playlist.
+  -l LOCATION, --location LOCATION
+                        Specify a location for the files to download to.
+  --make-directory      If location is specified, make the directory with the specified path.
+  -f FILE, --file FILE  Specify a file name/path of a textfile with a single URL on each line.
+  -c, --clear           Clear youtube-dl's cache
+  --location-file LOCATION_FILE
+                        Give a .csv file with <URL,location,make-directory> where make-directory is <True|False>. If not specified, defaults to False.
+  -a AUDIO_FORMAT, --audio-format AUDIO_FORMAT
+                        Audio format to write to. Defaults to 'best' which is .opus on most systems. Other options are: aac, alac, flac, m4a, mp3, opus, vorbis, wav
 ```
 
 
