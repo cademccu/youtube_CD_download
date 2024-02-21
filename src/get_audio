@@ -36,6 +36,7 @@ def get_arguments():
     parser.add_argument("-c", "--clear", help="Clear youtube-dl's cache", action="store_true")
     parser.add_argument("--location-file", help="Give a .csv file with <URL,location,make-directory> where make-directory is <True|False>. If not specified, defaults to False.", action="store", dest="LOCATION_FILE")
     parser.add_argument("-a", "--audio-format", help="Audio format to write to. Defaults to 'best' which is .opus on most systems. Other options are: aac, alac, flac, m4a, mp3, opus, vorbis, wav", action="store", dest="AUDIO_FORMAT")
+    parser.add_argument("--name-file", help="Give a .csv file with <URL,location,file-name,make-directory> where file-name is the name the file will be renamed to from the youtube title (no extension, it will be added automatically), and make-directory is <True|False>. If not specified, defaults to False.", action="store", dest="NAME_FILE")
 
     return parser.parse_args()
 
@@ -45,10 +46,6 @@ def get_arguments():
 def download(URL):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([URL])
-
-
-
-
 
 
 #################################################################
@@ -114,7 +111,7 @@ def _download_from_location_file(filename):
         while line:
             items = line.split(",")
             if len(items) == 3:
-                if items[2].lower() in ["True", "T"]:
+                if items[2].strip().lower() in ["True", "T"]:
                     # Try to make this directories location
                     try:
                         print("Making directory:", items[1].strip())
@@ -132,6 +129,38 @@ def _download_from_location_file(filename):
             ydl_opts["outtmpl"] = OUTTMPL_STR # reset the location option
             line = f.readline()
 
+#################################################################
+# Name file - Using a simple CSV file, download multiple
+# different audio files and write to different locations WHILE
+# changing the name of downloaded file.
+#   line format: < URL, location, new_name, (Optional) True|False >
+#   Default for optional 3rd boolean is false.
+#################################################################
+def _download_from_name_file(filename):
+    with open(filename, "r") as f:
+        line = f.readline()
+        while line:
+            items = line.split(",")
+            if len(items) == 4:
+                if items[3].strip().lower() in ["True", "T"]:
+                    # Try to make this directories location
+                    try:
+                        print("Making directory:", items[1].strip())
+                        os.mkdir(items[1].strip())
+                    except OSError as error:
+                        print("[ERROR] OSError occurred while trying to make new directory.\n\tSkipping line in file:", line)
+                        print(error) 
+                        line = f.readline()
+                        continue
+
+
+            # sanatize the filepath if path seperator not provided.
+            # This adds the directory path with the system file seperator.
+            ydl_opts["outtmpl"] = os.path.join(items[1].strip(), items[2].strip() + ".%(ext)s")
+            download(items[0].strip())
+            #_audio_format = 
+            ydl_opts["outtmpl"] = OUTTMPL_STR # reset the location option
+            line = f.readline()
     
 def main():
     args = get_arguments()
@@ -170,8 +199,8 @@ def main():
         _download_from_file(args.FILE)
     elif args.LOCATION_FILE:
         _download_from_location_file(args.LOCATION_FILE)
-    #elif args.RENAME_FILE:
-    #    print("[ERROR]  Not implemented yet! rename file")
+    elif args.NAME_FILE:
+        _download_from_name_file(args.NAME_FILE)
 
 
 if __name__ == "__main__":
