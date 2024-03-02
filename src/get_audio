@@ -18,7 +18,7 @@ ydl_opts = {
     'outtmpl': OUTTMPL_STR,
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'best',
+        'preferredcodec': 'flac',
        # 'preferredquality': '192', # Don't think this is needed.
     }],
 }
@@ -35,7 +35,7 @@ def get_arguments():
     parser.add_argument("-f", "--file", help="Specify a file name/path of a textfile with a single URL on each line.", action="store", dest="FILE")
     parser.add_argument("-c", "--clear", help="Clear youtube-dl's cache", action="store_true")
     parser.add_argument("--location-file", help="Give a .csv file with <URL,location,make-directory> where make-directory is <True|False>. If not specified, defaults to False.", action="store", dest="LOCATION_FILE")
-    parser.add_argument("-a", "--audio-format", help="Audio format to write to. Defaults to 'best' which is .opus on most systems. Other options are: aac, alac, flac, m4a, mp3, opus, vorbis, wav", action="store", dest="AUDIO_FORMAT")
+    parser.add_argument("-a", "--audio-format", help="Audio format to write to. Defaults to 'flac' which is .opus on most systems. Other options are: aac, alac, flac, m4a, mp3, opus, vorbis, wav", action="store", dest="AUDIO_FORMAT")
     parser.add_argument("--name-file", help="Give a .csv file with <URL,location,file-name,make-directory> where file-name is the name the file will be renamed to from the youtube title (no extension, it will be added automatically), and make-directory is <True|False>. If not specified, defaults to False.", action="store", dest="NAME_FILE")
 
     return parser.parse_args()
