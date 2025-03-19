@@ -1,0 +1,40 @@
+#!/opt/homebrew/bin/python3
+
+import sys
+import os
+from time import time
+from math import floor
+from stat import S_IRWXU
+
+# This program creates a rename script template for downloaded files.
+
+# possible impovements: escaping (") and other control chars 
+# more paths
+
+files = os.listdir(".")
+# no directories or hidden files OR the calling file (if present)
+files = [x for x in files if os.path.isfile(x) and x[0] != "." and x != sys.argv[0]]
+
+# use unique, timestamped file name to avoid collisions
+script_name = "rename_" + str(floor(time())) + ".sh"
+with open(script_name, "wt") as f_out:
+    # write bash header
+    f_out.write("#!/bin/bash\n\n")
+
+    # write relative paths for ease of access
+    f_out.write("si=/Users/burnt/SPITE/AUDIO_/AUDIO/SONGS_INDIVIDUAL\n")
+    f_out.write("ss=/Users/burnt/SPITE/AUDIO_/AUDIO/SONGS_INDIVIDUAL/SAMPLES\n")
+    f_out.write("sa=/Users/burnt/SPITE/AUDIO_/AUDIO/SONGS_INDIVIDUAL/ATMOSPHERIC\n")
+    f_out.write("sr=/Users/burnt/SPITE/AUDIO_/AUDIO/SONGS_INDIVIDUAL/SONGS_REAL\n")
+    f_out.write("su=/Users/burnt/SPITE/AUDIO_/AUDIO/LANDING/UNKNOWN\n")
+    f_out.write("artists=/Users/burnt/SPITE/AUDIO_/AUDIO/ARTISTS\n")
+
+    # spacers
+    f_out.write("\n\n")
+
+    for name in files:
+        f_out.write("mv \"" + name + "\" \n\n")
+   
+os.chmod(script_name, S_IRWXU) # rwx owner
+
+print("\ncreated rename script:  " + script_name + "\n")
