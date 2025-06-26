@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
-
-import yt_dlp 
 import sys
+sys.path.append("/opt/homebrew/bin/")
+import yt_dlp 
 import subprocess
 import argparse
 import os
@@ -45,7 +45,13 @@ def get_arguments():
 #################################################################
 def download(URL):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([URL])
+        try:
+            ydl.download([URL])
+        except yt_dlp.utils.ExtractorError as extract_error:
+            if "Video unavailable" in str(extract_error):
+                print("\nIt appears the video is deemed 'unavailable' by youtube...\ncontinuing...\n")
+            else:
+                print(extract_error)
 
 
 #################################################################
